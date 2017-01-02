@@ -1,0 +1,34 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+#define pb push_back
+#define fi first
+#define se second
+#define sp setprecision
+#define sz size()
+
+const int MAXN=4e4+1000;
+
+#define rank asdfaasgkasg
+int parent[MAXN];
+int rank[MAXN];
+int find_parent(int v)
+{
+    if(v==parent[v])
+        return v;
+    return parent[v]=find_parent(parent[v]);
+}
+void union_set(int a,int b)
+{
+    a=find_parent(a);
+    b=find_parent(b);
+    if(a!=b)
+    {
+        if(rank[a]<rank[b])
+            swap(a,b);
+        else if(rank[a]==rank[b])
+            ++rank[a];
+        parent[b]=a;
+    }
+}
