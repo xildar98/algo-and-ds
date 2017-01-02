@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+#define pb push_back
+#define fi first
+#define se second
+#define sp setprecision
+#define sz size()
+
+const int MAXN=1e5+1000;
+
+vector<int> g[MAXN];
+int parent[MAXN];
+int lvl[MAXN];
+/*
+    lvl[i] should be -1
+*/
+int dfs(int v,int &center,int p,int siz)
+{
+    int sum=1;
+    for(int to:g[v])
+    {
+        if(lvl[to]==-1 && to!=p)
+        {
+            sum+=dfs(to,center,v,siz);
+        }
+    }
+    if(center==-1 && (2*sum>=siz || p==-1))
+       {
+           center=v;
+       }
+        return sum;
+}
+void centroid(int v,int siz,int last=0,int level=0)
+{
+    int center=-1;
+    dfs(v,center,-1,siz);
+    parent[center]=last;
+    lvl[center]=level;
+    for(int to:g[center])
+    {
+        if(lvl[to]==-1)
+        {
+            centroid(to,siz/2,center,level+1);
+        }
+    }
+}
+/*
+    centroid(1,n);
+*/
