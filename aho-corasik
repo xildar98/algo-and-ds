@@ -1,0 +1,85 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+int inf_int=2e9;
+ll inf_ll=1e18;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+#define pb push_back
+const double pi=3.1415926535898;
+#define dout if(debug) cout
+#define fi first
+#define se second
+#define sp setprecision
+#define sz size()
+
+bool debug=0;
+const int MAXN=4e5+100000;
+int mod=1e9+9;
+
+int go[MAXN][26];
+string words[1000];
+int sufLink[MAXN];
+int leaf[MAXN];
+bool hasTermival[MAXN];
+void build()
+{
+    queue<int> q;
+    q.push(0);
+    while(!q.empty())
+    {
+        int v=q.front();q.pop();
+        for(int i=0;i<26;++i)
+        {
+            int to=go[v][i];
+            int suf=sufLink[v]==-1?0:go[sufLink[v]][i];
+            if(to>=0)
+            {
+                sufLink[to]=suf;
+                q.push(to);
+            }
+            else
+            {
+                go[v][i]=suf;
+            }
+        }
+        hasTermival[v]=leaf[v];
+        if(sufLink[v]>=0 && hasTermival[sufLink[v]])
+            hasTermival[v]=1;
+    }
+
+}
+void solve()
+{
+   int n;
+   cin >> n;
+   int len=2;
+   for(int i=0;i<n;++i)
+   {
+       cin >> words[i];
+       len+=words[i].sz;
+   }
+   for(int i=0;i<len;++i)
+   {
+       for(int e=0;e<26;++e)
+            go[i][e]=-1;
+   }
+   int free=0;
+   fill(sufLink,sufLink+len,-1);
+   for(int j=0;j<n;++j)
+   {
+       int v=0;
+       for(int i=0;i<words[j].sz;++i)
+       {
+            char c=words[j][i]-'a';
+            if(go[v][c]==-1)
+            {
+                go[v][c]=++free;
+            }
+            v=go[v][c];
+       }
+       leaf[v]=1;
+   }
+   build();
+}
