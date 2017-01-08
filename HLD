@@ -105,14 +105,18 @@ int hld(int v,int p,int gr)
 
 int lca(int a,int b)
 {
-    if(gran[a]==gran[b])
-        if(h[a]<h[b])
-            return a;
+    while(1)
+    {
+        if(gran[a]==gran[b])
+            if(h[a]<h[b])
+                return a;
+            else
+                return b;
+        if(h[gran[a]]>h[gran[b]])
+            a=parent[gran[a]];
         else
-            return b;
-    if(h[gran[a]]>h[gran[b]])
-        return lca(parent[gran[a]],b);
-    return lca(a,parent[gran[b]]);
+            b=parent[gran[b]];
+    }
 }
 
 int query_up(int a,int lc)
