@@ -1,25 +1,15 @@
 #include <bits/stdc++.h>
 using namespace std;
 typedef  long long ll;
-typedef unsigned long long ull;
 int inf_int=2e9;
-ll inf_ll=1e18;
-typedef pair<int,int> pii;
-typedef pair<ll,ll> pll;
 #define pb push_back
-const double pi=3.1415926535898;
-#define dout if(debug) cout
 #define fi first
 #define se second
 #define sp setprecision
 #define sz size()
 
-bool debug=0;
 const int MAXN=30000;
-int mod=1e9+9;
 
-
-#define rank asfalgalsglasgllzxdgl
 struct SegmentTree
 {
     int *t;
@@ -112,17 +102,10 @@ int hld(int v,int p,int gr)
     }
     else
         return got+1;
-
 }
 
-int z=0;
 int lca(int a,int b)
 {
-    z++;
-    if(z>100)
-    {
-        cout << 1/0;
-    }
     if(gran[a]==gran[b])
         if(h[a]<h[b])
             return a;
@@ -131,7 +114,6 @@ int lca(int a,int b)
     if(h[gran[a]]>h[gran[b]])
         return lca(parent[gran[a]],b);
     return lca(a,parent[gran[b]]);
-
 }
 
 int query_up(int a,int lc)
@@ -139,19 +121,11 @@ int query_up(int a,int lc)
     int res=-inf_int;
     while(1)
     {
-        z++;
-        if(z>100)
-        {
-            cout << 1/0;
-        }
         if(gran[a]==gran[lc])
         {
-       //     cout << "Here" <<" "<<a<<" "<<lc<<" "<<where[a]<<" "<<where[lc]<<"  "<<gran[a]<<endl;
             res=max(res,tree[gran[a]].get(where[a],where[lc]));
-         //   cout << res<<endl;
             break;
         }
-      //  cout << a <<" "<<lc<<endl;
         int next=gran[a];
         res=max(res,tree[next].get(where[a],where[next]+1));
         a=parent[next];
@@ -162,14 +136,10 @@ void solve()
 {
     int n;
     scanf("%d",&n);
-  //  cin >> n;
-
-    for(int i=0;i<=n+5;++i)
+    for(int i=1;i<=n;++i)
     {
         g[i].clear();
         siz[i]=0;
-        parent[i]=0;
-        h[i]=0;
     }
     for(int i=0;i<n-1;++i)
     {
@@ -185,7 +155,6 @@ void solve()
         if(h[X[i]]<h[Y[i]])
             swap(X[i],Y[i]);
         tree[gran[X[i]]].update(where[X[i]],Z[i]);
-      //  cout << where[X[i]]<<" "<<Z[i]<<"    "<<gran[X[i]]<<endl;
     }
     char T[7];
     while(1)
@@ -195,9 +164,7 @@ void solve()
         {
             int a,b;
             scanf("%d %d",&a,&b);
-            z=0;
             int lc=lca(a,b);
-            z=0;
             int res=max(query_up(a,lc),query_up(b,lc));
             printf("%d\n",res);
         }
@@ -207,7 +174,6 @@ void solve()
             scanf("%d %d",&a,&b);
             a=X[a-1];
             tree[gran[a]].update(where[a],b);
-          //  cout <<" update "<<endl;
         }
         else
         {
@@ -218,29 +184,11 @@ void solve()
     }
 }
 
-
-#define FILE "stupid_rmq"
 int main()
 {
-        #ifdef zxc
-            freopen("input.txt","r",stdin);
-       //    freopen("output.txt","w",stdout);
-        #endif // zxc
-
-    //    freopen(FILE".in","r",stdin);
-   //   freopen(FILE".out","w",stdout);
-
-       if(!debug)
-       {
-      //      ios_base::sync_with_stdio(0);
-     //       cin.tie(0);
-      //      cout.tie(0);
-       }
-
         int t=1;
         scanf("%d",&t);
          while(t--)
             solve();
-
         return 0;
 }
