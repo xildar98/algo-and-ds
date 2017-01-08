@@ -5,7 +5,6 @@ int inf_int=2e9;
 #define pb push_back
 #define fi first
 #define se second
-#define sp setprecision
 #define sz size()
 
 const int MAXN=30000;
