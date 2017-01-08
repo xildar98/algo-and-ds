@@ -1,0 +1,246 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+int inf_int=2e9;
+ll inf_ll=1e18;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+#define pb push_back
+const double pi=3.1415926535898;
+#define dout if(debug) cout
+#define fi first
+#define se second
+#define sp setprecision
+#define sz size()
+
+bool debug=0;
+const int MAXN=30000;
+int mod=1e9+9;
+
+
+#define rank asfalgalsglasgllzxdgl
+struct SegmentTree
+{
+    int *t;
+    int n;
+    void init(int N)
+    {
+        n=1;
+        while(n<N)
+            n<<=1;
+        t=new int[2*n];
+        for(int i=0;i<2*n;++i)
+            t[i]=0;
+    }
+    void build()
+    {
+        for(int i=n-1;i>0;--i)
+            t[i]=max(t[i<<1],t[i<<1|1]);
+    }
+    int get(int l,int r) // [l,r)
+    {
+        int res=-inf_int;
+        for(l+=n,r+=n;l<r;l>>=1,r>>=1)
+        {
+            if(l&1)
+                res=max(res,t[l++]);
+            if(r&1)
+                res=max(res,t[--r]);
+        }
+        return res;
+    }
+    void update(int pos,int val)// pos 0 index
+    {
+        pos+=n;
+        for(t[pos]=val;pos>1;pos>>=1)
+            t[pos>>1]=max(t[pos],t[pos^1]);
+    }
+};
+
+int where[MAXN],gran[MAXN],h[MAXN];
+int siz[MAXN];
+SegmentTree tree[MAXN];
+vector<int> g[MAXN];
+int X[MAXN],Y[MAXN],Z[MAXN];
+int parent[MAXN];
+void dfs1(int v,int p)
+{
+    ++siz[v];
+    parent[v]=p;
+    for(int i=0;i<g[v].sz;++i)
+    {
+        int to=g[v][i];
+        if(to!=p)
+        {
+            h[to]=h[v]+1;
+            dfs1(to,v);
+            siz[v]+=siz[to];
+        }
+    }
+}
+int hld(int v,int p,int gr)
+{
+    int mx=-1;
+    for(int i=0;i<g[v].sz;++i)
+    {
+        int to=g[v][i];
+        if(to==p)
+            continue;
+        if(mx==-1 || siz[to]>siz[mx])
+            mx=to;
+    }
+    if(gr==-1)
+        gr=v;
+    gran[v]=gr;
+    int got=0;
+    for(int i=0;i<g[v].sz;++i)
+    {
+        int to=g[v][i];
+        if(to==p)
+            continue;
+        else if(to==mx)
+            got=hld(to,v,gr);
+        else
+            hld(to,v,-1);
+    }
+    where[v]=got;
+    if(gr==v)
+    {
+        tree[v].init(got+1);
+        return 0;
+    }
+    else
+        return got+1;
+
+}
+
+int z=0;
+int lca(int a,int b)
+{
+    z++;
+    if(z>100)
+    {
+        cout << 1/0;
+    }
+    if(gran[a]==gran[b])
+        if(h[a]<h[b])
+            return a;
+        else
+            return b;
+    if(h[gran[a]]>h[gran[b]])
+        return lca(parent[gran[a]],b);
+    return lca(a,parent[gran[b]]);
+
+}
+
+int query_up(int a,int lc)
+{
+    int res=-inf_int;
+    while(1)
+    {
+        z++;
+        if(z>100)
+        {
+            cout << 1/0;
+        }
+        if(gran[a]==gran[lc])
+        {
+       //     cout << "Here" <<" "<<a<<" "<<lc<<" "<<where[a]<<" "<<where[lc]<<"  "<<gran[a]<<endl;
+            res=max(res,tree[gran[a]].get(where[a],where[lc]));
+         //   cout << res<<endl;
+            break;
+        }
+      //  cout << a <<" "<<lc<<endl;
+        int next=gran[a];
+        res=max(res,tree[next].get(where[a],where[next]+1));
+        a=parent[next];
+    }
+    return res;
+}
+void solve()
+{
+    int n;
+    scanf("%d",&n);
+  //  cin >> n;
+
+    for(int i=0;i<=n+5;++i)
+    {
+        g[i].clear();
+        siz[i]=0;
+        parent[i]=0;
+        h[i]=0;
+    }
+    for(int i=0;i<n-1;++i)
+    {
+        scanf("%d %d %d",&X[i],&Y[i],&Z[i]);
+        g[X[i]].pb(Y[i]);
+        g[Y[i]].pb(X[i]);
+    }
+    h[1]=1;
+    dfs1(1,0);
+    hld(1,1,-1);
+    for(int i=0;i<n-1;++i)
+    {
+        if(h[X[i]]<h[Y[i]])
+            swap(X[i],Y[i]);
+        tree[gran[X[i]]].update(where[X[i]],Z[i]);
+      //  cout << where[X[i]]<<" "<<Z[i]<<"    "<<gran[X[i]]<<endl;
+    }
+    char T[7];
+    while(1)
+    {
+        scanf("%s",&T);
+        if(T[0]=='Q')
+        {
+            int a,b;
+            scanf("%d %d",&a,&b);
+            z=0;
+            int lc=lca(a,b);
+            z=0;
+            int res=max(query_up(a,lc),query_up(b,lc));
+            printf("%d\n",res);
+        }
+        else if(T[0]=='C')
+        {
+           int a,b;
+            scanf("%d %d",&a,&b);
+            a=X[a-1];
+            tree[gran[a]].update(where[a],b);
+          //  cout <<" update "<<endl;
+        }
+        else
+        {
+            for(int j=0;j<=n;++j)
+                g[j].clear();
+            return;
+        }
+    }
+}
+
+
+#define FILE "stupid_rmq"
+int main()
+{
+        #ifdef zxc
+            freopen("input.txt","r",stdin);
+       //    freopen("output.txt","w",stdout);
+        #endif // zxc
+
+    //    freopen(FILE".in","r",stdin);
+   //   freopen(FILE".out","w",stdout);
+
+       if(!debug)
+       {
+      //      ios_base::sync_with_stdio(0);
+     //       cin.tie(0);
+      //      cout.tie(0);
+       }
+
+        int t=1;
+        scanf("%d",&t);
+         while(t--)
+            solve();
+
+        return 0;
+}
