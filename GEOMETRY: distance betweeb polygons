@@ -1,0 +1,210 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+int inf_int=1e9;
+ll inf_ll=1e18;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+#define pb push_back
+const double pi=3.1415926535898;
+#define dout if(debug) cout
+#define fi first
+#define se second
+#define sp setprecision
+#define sz size()
+bool debug=0;
+
+const int MAXN=2e5+10;
+int mod=1e9+7;
+
+typedef double dbl;
+
+#define prev asfalsfasfl
+struct point
+{
+    int x,y;
+    point()
+    {
+
+    }
+    point(int X,int Y)
+    {
+        x=X;
+        y=Y;
+    }
+    dbl dis(point a,point b)
+    {
+        return sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
+    }
+};
+
+struct vect
+{
+    int x,y;
+    vect(){}
+    vect(point& a,point& b)
+    {
+        x=b.x-a.x;
+        y=b.y-a.y;
+    }
+
+    dbl angle()
+    {
+        return atan(1.0*y/x)+pi;
+    }
+
+    point add_to_point(point& p)
+    {
+        return point(p.x+x,p.y+y);
+    }
+
+    dbl len()
+    {
+        return sqrt(1ll*x*x+1ll*y*y);
+    }
+    dbl cross(vect& a,vect& b)
+    {
+        return 1.0*a.x*b.y-1.0*a.y*b.x;
+    }
+    ll scal_product(vect& a,vect& b)
+    {
+        return 1ll*a.x*b.x+1ll*a.y*b.y;
+    }
+}Vector;
+
+struct segment
+{
+    point A,B;
+    segment(){}
+
+    segment(point A,point B)
+    :A(A),B(B){
+    }
+
+    dbl distance_to_point(point X)
+    {
+        vect AX(A,X);
+        vect BX(B,X);
+        vect AB(A,B);
+        vect BA(B,A);
+        if(Vector.scal_product(AX,AB)>0 && Vector.scal_product(BX,BA)>0)
+        {
+            return abs(Vector.cross(AX,AB))/AB.len();
+        }
+        else
+        {
+            return min(AX.len(),BX.len());
+        }
+    }
+
+}Segment;
+
+point a[MAXN],b[MAXN];
+void solve()
+{
+   int n;
+   cin >> n;
+   vector<point> A;
+   vector<point> B;
+   vector<point> res;
+   int ind=-1;
+   for(int i=0;i<n;++i)
+   {
+        cin >> a[i].x >> a[i].y;
+
+   }
+   reverse(a,a+n);
+   for(int i=0;i<n;++i)
+   {
+       if(ind==-1 || (a[ind].y>a[i].y || (a[ind].y==a[i].y && a[ind].x>a[i].x)))
+           {
+               ind=i;
+           }
+   }
+   for(int i=ind;i<n;++i)
+   {
+       A.pb(a[i]);
+   }
+   for(int i=0;i<=ind;++i)
+   {
+       A.pb(a[i]);
+   }
+   int m;
+   cin >> m;
+   for(int e=0;e<m;++e)
+   {
+       cin >> b[e].x >> b[e].y;
+       b[e].x=-b[e].x;
+       b[e].y=-b[e].y;
+   }
+
+   reverse(b,b+m);
+   ind=-1;
+   for(int i=0;i<m;++i)
+   {
+       if(ind==-1 || (b[ind].y>b[i].y || (b[ind].y==b[i].y && b[ind].x>b[i].x)))
+           {
+               ind=i;
+           }
+   }
+   for(int i=ind;i<m;++i)
+   {
+       B.pb(b[i]);
+   }
+   for(int i=0;i<=ind;++i)
+   {
+       B.pb(b[i]);
+   }
+
+   res.pb(point(A[0].x+B[0].x,A[0].y+B[0].y));
+   for(int i=1,e=1;i<A.sz || e<B.sz;)
+   {
+       point prev=res.back();
+       if(i<A.sz && e<B.sz)
+       {
+           vect vec1(A[i-1],A[i]);
+           vect vec2(B[e-1],B[e]);
+           if(Vector.cross(vec1,vec2)>0)
+           {
+               res.pb(vec1.add_to_point(prev));
+               ++i;
+           }
+           else
+           {
+               res.pb(vec2.add_to_point(prev));
+               ++e;
+           }
+
+       }
+       else if(i<A.sz)
+       {
+           vect vec1(A[i-1],A[i]);
+             res.pb(vec1.add_to_point(prev));
+             ++i;
+       }
+       else
+       {
+           vect vec2(B[e-1],B[e]);
+            res.pb(vec2.add_to_point(prev));
+               e++;
+       }
+   }
+
+   vector<segment> polygon;
+   for(int i=0;i<res.sz-1;++i)
+   {
+       polygon.pb(segment(res[i],res[i+1]));
+   }
+   double dis=inf_ll;
+   point cent(0,0);
+   for(segment x:polygon)
+   {
+       dis=min(dis,x.distance_to_point(cent));
+   }
+   cout <<fixed<<setprecision(15)<< dis;
+
+}
+
+
