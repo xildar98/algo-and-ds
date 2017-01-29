@@ -34,7 +34,7 @@ struct point
         x=X;
         y=Y;
     }
-    dbl dis(point a,point b)
+    dbl dis(point &a,point& b)
     {
         return sqrt((a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y));
     }
@@ -79,11 +79,11 @@ struct segment
     point A,B;
     segment(){}
 
-    segment(point A,point B)
+    segment(point& A,point& B)
     :A(A),B(B){
     }
 
-    dbl distance_to_point(point X)
+    dbl distance_to_point(point& X)
     {
         vect AX(A,X);
         vect BX(B,X);
