@@ -1,0 +1,143 @@
+#include <bits/stdc++.h>
+
+using namespace std;
+typedef  long long ll;
+typedef unsigned long long ull;
+int inf_int=1e9;
+ll inf_ll=1e16;
+typedef pair<int,int> pii;
+typedef pair<ll,ll> pll;
+#define pb push_back
+const double pi=3.1415926535898;
+#define dout if(debug) cout
+#define fi first
+#define se second
+#define sp setprecision
+#define siz(a) a.size()
+#define EPS 1e-7
+bool debug=0;
+
+typedef long double dbl;
+const int MAXN=3e5 + 100;
+int mod=1e9+7;
+
+
+
+
+
+struct vertex{
+    int key;
+    vertex *l,*r;
+    vertex *parent;
+    int prior;
+
+    int size;
+
+    vertex(int Key,int Prior){
+        key=Key;
+        prior=Prior;
+        l=NULL;
+        r=NULL;
+        parent=NULL;
+        size=1;
+    }
+};
+
+typedef vertex* pvertex;
+
+int get_size(pvertex v){
+    return v==NULL?0:v->size;
+}
+void upd(pvertex v){
+    if(v){
+      v->size = 1+get_size(v->l)+get_size(v->r);
+    }
+}
+void merge(pvertex &root,pvertex l,pvertex r){
+    if(l==NULL || r==NULL){
+        root= l==NULL?r:l;
+        return;
+    }
+    if(l->prior > r->prior){
+        merge(l->r,l->r,r);
+        if(l->r)
+            l->r->parent=l;
+        root=l;
+    } else {
+        merge(r->l,l,r->l);
+        if(r->l)
+            r->l->parent = r;
+        root=r;
+    }
+    upd(root);
+
+}
+
+// key to R
+void split(pvertex& l,pvertex& r,pvertex root,int key){
+    if(root==NULL){
+        l=r=NULL;
+        return;
+    }
+    if(root->key >=key){
+        split(l,root->l,root->l,key),r=root;
+        if(root->l){
+            root->l->parent=r;
+        }
+        if(l)
+            l->parent=NULL;
+    } else {
+        split(root->r,r,root->r,key), l = root;
+        if(root->r)
+            root->r->parent=root;
+        if(r)
+            r->parent=NULL;
+
+    }
+    upd(l);
+    upd(r);
+}
+
+int clr[MAXN];
+
+pvertex root[MAXN];
+
+pvertex ver[MAXN];
+
+void insert(pvertex& root,int x){
+
+    pvertex temp = new vertex(x,rand()^(rand()<<10)^(rand()<<20));
+    ver[x]=temp;
+    pvertex t1,t2;
+    split(t1,t2,root,x);
+    merge(t1,t1,temp);
+    merge(root,t1,t2);
+}
+
+void print(pvertex root){
+    if(!root)
+        return;
+    print(root->l);
+    cout << root -> key<<" ";
+    print(root->r);
+}
+
+
+//delete subtree from root with keys [l,r]
+void del(pvertex& root,pvertex& res,int l,int r){
+    pvertex t1,t2,t3;
+    split(t1,t2,root,l);
+    split(t2,t3,t2,r+1);
+    merge(root,t1,t3);
+    res=t2;
+}
+
+pvertex get_parent(pvertex v){
+    if(!v)
+        return NULL;
+    if(v->parent==NULL){
+        return v;
+    } else {
+        return get_parent(v->parent);
+    }
+}
