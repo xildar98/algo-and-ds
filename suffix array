@@ -1,0 +1,39 @@
+//alpha  - size of alphabet 
+// O( (n+alpha) * logn)
+vector<int> build_suf(string& s,int alpha){
+    int n = s.size();
+    int N = n + alpha;
+    vector<int> sa(n),c(n);
+    int cnt[N];
+    for(int i=0;i<n;++i){
+        sa[i] = i;c[i] = s[i];
+    }
+    vector<int> nsa(n),nc(n);
+    for(int len=0;len<n; len?len*=2:len++){
+        fill(cnt,cnt+N,0);
+        for(int i=0;i<n;++i){
+            nsa[i] = sa[i] - len;
+            if(nsa[i]<0)
+                nsa[i]+=n;
+        }
+        for(int i=0;i<n;++i) cnt[c[i]]++;
+        for(int i=1;i<N;++i)
+            cnt[i]+=cnt[i-1];
+        for(int i=n-1;i>=0;--i) {
+            sa[ --cnt[c[nsa[i]] ] ]   = nsa[i];
+        }
+        int classes=0;
+        nc[sa[0]]=0;
+        for(int i=1;i<n;++i){
+            if(c[sa[i]]!=c[sa[i-1]])
+                classes++;
+            else if(c[(sa[i]+ len)%n]!=c[(sa[i-1]+len)%n])
+                    classes++;
+            nc[sa[i]]=classes;
+        }
+        c = nc;
+    }
+
+    return sa; // suffix array
+    return c; // class array
+}
