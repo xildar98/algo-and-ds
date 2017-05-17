@@ -1,0 +1,56 @@
+int tail[MAXN];
+typedef complex<double> base;
+void fft(vector<base>& a,bool invert){
+    int n = a.size();
+    int k = 0;
+    while((1<<k)<n)k++;
+
+    for(int i=1;i<=n-1;++i){
+        tail[i] = (i&1)<<(k-1) | (tail[i>>1]>>1);
+    }
+    for(int i=0;i<n;++i){
+        if(i<tail[i])
+            swap(a[i],a[tail[i]]);
+    }
+    for(int len = 2;len<=n;len<<=1){
+        double ang = 2*pi / len * (invert?-1:1);
+        base wlen(cos(ang),sin(ang));
+        for(int i=0;i<n;i=i+len){
+            base w(1);
+            for(int j=0;j<len/2;++j){
+                base u = a[i+j], v = a[i+j+len/2] * w;
+                a[i+j] = u + v;
+                a[i+j+len/2] = u -v;
+                w*=wlen;
+            }
+        }
+    }
+    if(invert){
+        for(int i=0;i<n;++i){
+            a[i]/=n;
+        }
+    }
+}
+
+
+void multiply(vector<int>& a,vector<int>& b,vector<ll>& res){
+    vector<base> fa(a.begin(),a.end()),fb(b.begin(),b.end());
+    int n = 1;
+    while(n<max(a.size(),b.size()))
+        n<<=1;
+    n<<=1;
+    fa.resize(n);
+    fb.resize(n);
+    fft(fa,false);
+    fft(fb,false);
+    for(int i=0;i<n;++i){
+        fa[i]=fa[i]*fb[i];
+    }
+    fft(fa,true);
+
+    res.resize(n);
+    for(int i=0;i<n;++i){
+        res[i] = fa[i].real() + 0.1;
+    }
+
+}
