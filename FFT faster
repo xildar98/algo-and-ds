@@ -1,0 +1,92 @@
+struct base{
+    double re,im;
+    base(){
+        re = im = 0;
+    }
+    base(double x,double y){
+        re = x;
+        im = y;
+    }
+};
+
+inline base conj(const base& a) { return base(a.re, -a.im); }
+inline base operator+ (const base& a, const base& b) { return base(a.re + b.re, a.im + b.im); }
+inline base operator- (const base& a, const base& b) { return base(a.re - b.re, a.im - b.im); }
+inline base operator* (const base& a, const base& b) { return base(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re); }
+
+int tail[1<<23];
+int last_tail = 0;
+
+
+base fa[1<<23],fb[1<<23];
+
+base ww[1<<23];
+void fft(base a[],int n,bool invert){
+    if(last_tail!=n){
+        int k = 0;
+        while((1<<k)<n)++k;
+        for(int i=1;i<n;++i){
+            tail[i] = ((i&1)<<(k-1)) | (tail[i>>1]>>1);
+        }
+        last_tail = n;
+   }
+
+    for(int i=0;i<n;++i){
+        if(i<tail[i])
+            swap(a[i],a[tail[i]]);
+    }
+    ww[0] = {1,0};
+    for(int len=2;len<=n;len<<=1){
+        double angle = 2*pi/len * (invert?-1:1);
+        base wlen(cos(angle),sin(angle));
+        int len2 = len >> 1;
+
+        for(int i=1;i<len2;++i)
+            ww[i]=ww[i-1] * wlen;
+        for(int i=0;i<n;i=i+len){
+            for(int j=0;j<len2;++j){
+                base u = a[i+j], v = ww[j]*a[i+j+len2];
+                a[i+j] = u + v;
+                a[i+j+len2] = u - v;
+            }
+        }
+    }
+
+    if(invert)
+        for(int i=0;i<n;++i){
+            a[i].re/=n;
+            a[i].im/=n;
+        }
+}
+
+
+
+
+void multiply(vector<int>& a,vector<int>& b,vector<int>& res){
+
+    int n = 1;
+    while(n<max(a.size(),b.size()))
+        n<<=1;
+    n<<=1;
+    for(int i=0;i<n;++i)
+        fa[i]=fb[i] = {0,0};
+    for(int i=0;i<a.size();++i)
+        fa[i] = {a[i],0};
+    for(int i=0;i<b.size();++i)
+        fb[i]= {b[i],0};
+    fft(fa,n,false);
+    fft(fb,n,false);
+    for(int i=0;i<n;++i){
+        fa[i]=fa[i]*fb[i];
+    }
+    fft(fa,n,true);
+
+    res.resize(n);
+    for(int i=0;i<n;++i){
+        res[i] = fa[i].re + 0.1;
+    }
+
+    while(res.size()>10 && res.back()==0)
+        res.pop_back();
+
+}
