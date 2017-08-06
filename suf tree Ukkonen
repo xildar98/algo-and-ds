@@ -1,0 +1,111 @@
+struct node{
+    int p,l,r;
+    map<char,int> nxt;
+    int lnk;
+    node(int p=0,int l=0,int r=0):p(p),l(l),r(r),lnk(0){;}
+
+    inline int len() {return r-l;}
+};
+int root = 1;
+int E = 2;
+node t[MAXN];
+struct pos{
+    int v,up;
+    pos(int v,int up):v(v),up(up) {;}
+};
+string s;
+int n;
+int add(int p,int l,int r){
+  //  cout << p <<" "<<l << " " << r << endl;
+    //cout <<t[p].nxt[s[l]] <<endl;
+    //assert(!t[p].nxt.count(s[l]));
+    t[E] = node(p,l,r);
+    t[p].nxt[s[l]] = E;
+ //   cout <<" edge "<<p <<" "<<s[l] <<" - > "<<E<<endl;
+    return E++;
+}
+
+pos go(pos e,char c){
+    if(e.up==0){
+        return t[e.v].nxt.count(c)?pos(t[e.v].nxt[c],t[t[e.v].nxt[c]].len()-1):pos(0,0);
+    }
+    return c==s[t[e.v].r - e.up]?pos(e.v,e.up-1):pos(0,0);
+}
+
+int split(pos e){
+    if(e.up==0)
+        return e.v;
+    int p = t[e.v].p;
+    if(e.up == t[e.v].len())
+        return p;
+    int w = add(p,t[e.v].l,t[e.v].r-e.up);
+    t[e.v].p = w;
+    t[e.v].l=t[e.v].r - e.up;
+    t[w].nxt[s[t[e.v].l]] = e.v;
+    return w;
+}
+
+pos jump(int u,int l,int r){
+    if(l==r)
+        return pos(u,0);
+    while(true){
+        u = t[u].nxt[s[l]];
+        if(t[u].len()>=r-l){
+            return pos(u,t[u].len() - r + l);
+        }
+        l += t[u].len();
+    }
+}
+int lnk(int u){
+    if(!t[u].lnk){
+        t[u].lnk = split(jump(lnk(t[u].p),t[u].l + (t[u].p==root), t[u].r));
+    }
+    return t[u].lnk;
+}
+pos expand(pos e,int i){
+   // cout <<"expand "<<e.v<<" "<<e.up<<" " <<" "<<i <<endl;
+    while(true){
+        pos ne = go(e,s[i]);
+        if(ne.v)
+            return ne;
+       // cout << e.v<<" "<<e.up<<endl;
+        int u = split(e);
+        //cout <<"split "<<u <<endl;
+        add(u,i,n);
+
+        e = pos(lnk(u),0);
+        if(u==root)
+            return e;
+    }
+}
+int z = 0;
+vector<pair<int,pii> > ans;
+void dfs(int v,int parent){
+    if(v!=root){
+        ans.pb({parent,{t[v].l,t[v].r}});
+    }
+
+    int number  = z++;
+    for(auto x:t[v].nxt){
+     //   cout << v <<" "<< x.se<<endl;
+        dfs(x.se,number);
+    }
+}
+
+void solve(){
+    t[root].lnk = root;
+    cin >> s;
+    n = s.length();
+    pos e(root,0);
+    for(int i=0;i<n;++i){
+       // cout << i <<" : "<<endl;
+        e = expand(e,i);
+    }
+
+    dfs(root,0);
+    cout << ans.size()+1<<"\n";
+    for(auto x:ans){
+        cout <<x.fi<<" "<<x.se.fi<<" "<<x.se.se<<"\n";
+    }
+
+}
