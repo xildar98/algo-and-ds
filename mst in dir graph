@@ -1,0 +1,148 @@
+#include <bits/stdc++.h>
+using namespace std;
+typedef pair<int,int> pii;
+typedef long long ll;
+typedef pair<ll,ll> pll;
+
+#define fi first
+#define se second
+#define pb push_back
+#define rank kgjksjsias
+const int MAXN = 30000+10;
+
+
+ll dif[MAXN];
+
+vector<pll> g[MAXN];
+
+set<pll> gr[MAXN];
+
+
+char used[MAXN];
+void dfs(int v){
+    used[v]=1;
+    for(pll x:g[v]){
+        int to = x.se;
+        if(!used[to]){
+            dfs(to);
+        }
+    }
+}
+
+
+void merge_set(int a,int b){
+    if(gr[a].size()<gr[b].size()){
+        swap(gr[a],gr[b]);
+    }
+    for(pll x:gr[b]){
+        ll len = x.fi;
+        int to = x.se;
+        len = len - dif[b] + dif[a];
+        gr[a].insert({len,to});
+    }
+}
+int parent[MAXN];
+int rank[MAXN];
+int find_parent(int v){
+    if(v==parent[v]){
+        return v;
+    }
+    return parent[v] = find_parent(parent[v]);
+}
+
+void union_set(int a,int b){
+    a = find_parent(a);
+    b = find_parent(b);
+    if(a!=b){
+        if(rank[a]<rank[b])
+            swap(a,b);
+        else if(rank[a]==rank[b])
+            rank[a]++;
+        parent[b] = a;
+        merge_set(a,b);
+    }
+}
+
+
+
+char us[MAXN];
+
+void solve(){
+    int n,m;
+    cin >> n >> m;
+    for(int i=1;i<=m;++i){
+        int a,b,c;
+        cin >> a >> b >> c;
+        if(a==b)
+            continue;
+        g[a].pb({c,b});
+        gr[b].insert({c,a});
+    }
+
+    dfs(1);
+    ll ans = 0;
+    priority_queue<int> ver;
+    for(int i=1;i<=n;++i){
+        if(!used[i]){
+            cout <<"NO";
+            exit(0);
+        }
+
+        parent[i] = i;
+        if(i>1)
+            ver.push(i);
+    }
+    stack<int> st;
+    while(!ver.empty()){
+        int v = ver.top(); ver.pop();
+        if(find_parent(v)!=v || find_parent(v)==find_parent(1)){
+            continue;
+        }
+        st.push(v);
+
+        while(1){
+            us[v] = 1;
+            pll x = *gr[v].begin(); gr[v].erase(gr[v].begin());
+            ll len = x.fi + dif[v];
+            int to = find_parent(x.se);
+            if(find_parent(to)==find_parent(v))
+                continue;
+            ans+=len;
+            if(find_parent(to)==find_parent(1)){
+                while(!st.empty()){
+                    int x = st.top(); st.pop();
+                    union_set(x,1);
+                }
+                break;
+            } else if(us[to]==0){
+                st.push(to);
+                v = to;
+            } else {
+                while(!st.empty()){
+                    int x = st.top(); st.pop();
+                    union_set(x,v);
+                    if(find_parent(x)==find_parent(to)){
+                        break;
+                    }
+                }
+                v = to;
+            }
+
+        }
+    }
+
+    cout <<"YES\n";
+    cout << ans<<endl;
+
+}
+int main(){
+    #ifdef zxc
+        freopen("input.txt","r",stdin);
+        freopen("output.txt","w",stdout);
+    #endif // zxc
+    ios_base::sync_with_stdio(0);
+    cin.tie(0);
+    cout.tie(0);
+    solve();;
+}
+
